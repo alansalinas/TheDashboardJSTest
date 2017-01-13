@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>The Dashboard</title>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+
+  <!-- Bootstrap Core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- MetisMenu CSS -->
+  <link href="vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link href="dist/css/sb-admin-2.css" rel="stylesheet">
+
+  <!-- Morris Charts CSS -->
+  <link href="vendor/morrisjs/morris.css" rel="stylesheet">
+
+  <!-- Custom Fonts -->
+  <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+  <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+</head>
+
+<body>
+<div ng-app="timesheets" ng-controller="timesheetsCtrl">
+  <div id="wrapper">
+
+    <div class="alert alert-success alert-dismissable" ng-show="showAlert">
+                                <button type="button" class="close" ng-click="switchBool('showAlert')" >×</button>
+                                <i class="fa fa-send fa-fw"></i> Mail has been sent to the mail client.
+                            </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">The Dashboard</a>
+      </div>
+      <!-- /.navbar-header -->
+
+
+
+      <div class="navbar-default sidebar" role="navigation">
+        <div class="sidebar-nav navbar-collapse">
+          <ul class="nav" id="side-menu">
+            <li>
+              <a href="locations.html"><i class="fa fa-map-marker fa-fw"></i> Earthquakes</a>
+            </li>
+            <li>
+              <a href="timesheets.html"><i class="fa fa-calendar fa-fw"></i> Timesheets</a>
+            </li>
+
+          </ul>
+        </div>
+        <!-- /.sidebar-collapse -->
+      </div>
+      <!-- /.navbar-static-side -->
+    </nav>
+
+    <!-- Page Content -->
+    <div id="page-wrapper">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-12">
+            <h1 class="page-header"><i class="fa fa-calendar fa-fw"></i> Timesheet Registry</h1>
+          </div>
+          <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <div class="row"/>
+                  <div class="col-lg-10">
+                    Name: <input name="name" ng-model="name" placeholder="John Doe"/>
+                    Email: <input name="email" placeholder="john@doe.com" ng-model="email"/>
+                    Date <input type="date" name="name" ng-model="date"/>
+                  </div>
+                  <div class="col-lg-2">
+                  <div class="text-right">
+                    <button type="button" class="btn btn-success" ng-click="addEntry()">Add</button>
+                    <button type="button" class="btn btn-danger" ng-click="removeEntries()">Remove</button>
+                  </div>
+                  </div>
+                  </div>
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                  <div class="table-responsive">
+                    <table class="table table-striped table-bordered table-hover">
+                      <thead>
+                        <tr>
+                          <th>Remove Line</th>
+                          <th>Project Name</th>
+                          <th>Work Description</th>
+                          <th>Hours Worked</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="x in entries">
+                          <td><input type="checkbox" name="" ng-model="x.checked"/></td>
+                          <td><input name="projectName" ng-model="x.projectName"/></td>
+                          <td><input name="workDescription" ng-model="x.workDescription"/></td>
+                          <td><input name="hoursWorked" ng-model="x.hoursWorked" /></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <!-- /.table-responsive -->
+                  <div class="text-center">
+                    <button type="button" class="btn btn-primary" ng-click="sendMail(email,name)">Submit</button>
+                    <button type="button" class="btn btn-outline btn-primary" ng-click="clear()">Clear</button>
+                  </div>
+                </div>
+                <!-- /.panel-body -->
+              </div>
+              <!-- /.panel -->
+            </div>
+          </div>
+          <!-- /.row -->
+      </div>
+      <!-- /.container-fluid -->
+    </div>
+    <!-- /#page-wrapper -->
+
+
+  </div>
+  <!-- /#wrapper -->
+
+  <script>
+  var app = angular.module('timesheets', []);
+  app.controller('timesheetsCtrl', function($scope, $window) {
+    $scope.entries = [{checked: false}];
+    $scope.content = "";
+    $scope.addEntry = function() {
+      $scope.entries.push({checked: false});
+    };
+    $scope.removeEntries = function() {
+      for (var i = 0; i < $scope.entries.length; i++) {
+          if ($scope.entries[i].checked == true)
+            $scope.entries.splice(i, 1);
+      }
+    };
+    $scope.clear = function() {
+      $scope.entries = [{checked: false}];
+      $scope.name = "";
+      $scope.email = "";
+      $scope.date = "";
+    };
+    $scope.sendMail = function(mail,subject){
+        $scope.content = "";
+        for (var i = 0; i < $scope.entries.length; i++) {
+            $scope.content = $scope.content + $scope.entries[i].projectName + " - " + $scope.entries[i].workDescription + " - " + $scope.entries[i].hoursWorked + '%0D%0A';
+        }
+      $window.open("mailto:"+ mail + "?subject=" + subject+"&body="+$scope.content,"_self");
+      $scope.showAlert = true;
+    };
+    $scope.switchBool = function(value) {
+      $scope[value] = !$scope[value];
+    };
+  });
+  </script>
+
+</div>
+<!-- /.angular app -->
+
+  <!-- jQuery -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+
+  <!-- Bootstrap Core JavaScript -->
+  <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+
+  <!-- Metis Menu Plugin JavaScript -->
+  <script src="vendor/metisMenu/metisMenu.min.js"></script>
+
+  <!-- Custom Theme JavaScript -->
+  <script src="dist/js/sb-admin-2.js"></script>
+
+</body>
+
+</html>
