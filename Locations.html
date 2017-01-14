@@ -84,7 +84,7 @@
           </div>
           <!-- /.row -->
           <div class="row">
-            <div class="col-lg-8">
+            <div class="col-lg-7">
               <div class="panel panel-default">
                 <div class="panel-heading">
                   <div class="row"/>
@@ -142,62 +142,21 @@
                 </div>
                 <!-- /.panel -->
               </div>
-              <div class="col-lg-4">
+              <div class="col-lg-5">
                 <div class="panel panel-default">
                   <div class="panel-heading">
-                    <i class="fa fa-bell fa-fw"></i> Notifications Panel
+                    <i class="fa fa-sort-amount-desc fa-fw"></i> Top Global Earthquakes
                   </div>
                   <!-- /.panel-heading -->
                   <div class="panel-body">
                     <div class="list-group">
-                      <a href="#" class="list-group-item">
-                        <i class="fa fa-comment fa-fw"></i> New Comment
-                        <span class="pull-right text-muted small"><em>4 minutes ago</em>
-                        </span>
-                      </a>
-                      <a href="#" class="list-group-item">
-                        <i class="fa fa-twitter fa-fw"></i> 3 New Followers
-                        <span class="pull-right text-muted small"><em>12 minutes ago</em>
-                        </span>
-                      </a>
-                      <a href="#" class="list-group-item">
-                        <i class="fa fa-envelope fa-fw"></i> Message Sent
-                        <span class="pull-right text-muted small"><em>27 minutes ago</em>
-                        </span>
-                      </a>
-                      <a href="#" class="list-group-item">
-                        <i class="fa fa-tasks fa-fw"></i> New Task
-                        <span class="pull-right text-muted small"><em>43 minutes ago</em>
-                        </span>
-                      </a>
-                      <a href="#" class="list-group-item">
-                        <i class="fa fa-upload fa-fw"></i> Server Rebooted
-                        <span class="pull-right text-muted small"><em>11:32 AM</em>
-                        </span>
-                      </a>
-                      <a href="#" class="list-group-item">
-                        <i class="fa fa-bolt fa-fw"></i> Server Crashed!
-                        <span class="pull-right text-muted small"><em>11:13 AM</em>
-                        </span>
-                      </a>
-                      <a href="#" class="list-group-item">
-                        <i class="fa fa-warning fa-fw"></i> Server Not Responding
-                        <span class="pull-right text-muted small"><em>10:57 AM</em>
-                        </span>
-                      </a>
-                      <a href="#" class="list-group-item">
-                        <i class="fa fa-shopping-cart fa-fw"></i> New Order Placed
-                        <span class="pull-right text-muted small"><em>9:49 AM</em>
-                        </span>
-                      </a>
-                      <a href="#" class="list-group-item">
-                        <i class="fa fa-money fa-fw"></i> Payment Received
-                        <span class="pull-right text-muted small"><em>Yesterday</em>
+                      <a ng-repeat="x in globalEarthquakes " href="#" class="list-group-item">
+                        <i class="fa fa-exclamation-circle fa-fw"></i> {{ x.lat + ', ' + x.lng +  ' - M:' + x.magnitude }}
+                        <span class="pull-right text-muted small"><em>{{ x.datetime }}</em>
                         </span>
                       </a>
                     </div>
                     <!-- /.list-group -->
-                    <a href="#" class="btn btn-default btn-block">View All Alerts</a>
                   </div>
                   <!-- /.panel-body -->
                 </div>
@@ -218,6 +177,29 @@
       app.controller('timesheetsCtrl', function($scope, $http) {
         $scope.locations = [];
         $scope.orderOptions = ["magnitude", "datetime"];
+        $scope.globalEarthquakes = [];
+
+        $http.get("http://api.geonames.org/earthquakesJSON?north=90.0&south=-90.0&east=180.0&west=-180.0&maxRows=150&username=alansalinas")
+        .then(function(response) {
+          console.log("Response");console.log(response.data);
+          $scope.tempquakes = response.data.earthquakes;
+          var n = 0;
+          var today = new Date();
+          for (var i = 0; i < $scope.tempquakes.length && n < 10; i++) {
+            var quakeDate = new Date($scope.tempquakes[i].datetime);
+            var months;
+            months = (today.getFullYear() - quakeDate.getFullYear()) * 12;
+            months -= quakeDate.getMonth() + 1;
+            months += today.getMonth();
+            months <= 0 ? 0 : months;
+            console.log("Months");console.log(months);
+            if (months <= 12)
+            {
+              $scope.globalEarthquakes.push($scope.tempquakes[i]);
+              n++;
+            }
+          }
+        });
 
         $scope.searchLocations = function() {
           console.log($scope.name);
